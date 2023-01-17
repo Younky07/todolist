@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todolist/todolist.dart';
 
 void main() => runApp(MyApp());
 
@@ -9,6 +10,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: TodoList(),
       theme: ThemeData(
+        scaffoldBackgroundColor: Colors.black,
         primarySwatch: Colors.pink,
       ),
     );
