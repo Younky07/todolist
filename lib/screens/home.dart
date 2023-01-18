@@ -1,11 +1,17 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 
-import '../model/todo.dart';
 import '../constants/colors.dart';
+import '../model/todo.dart';
 import '../widgets/todo_list.dart';
 
 class Home extends StatefulWidget {
-  Home({Key? key}) : super(key: key);
+  String tag;
+
+  Home({
+    Key? key,
+    this.tag = "",
+  }) : super(key: key);
 
   @override
   State<Home> createState() => _HomeState();

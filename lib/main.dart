@@ -1,23 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import './screens/home.dart';
+import 'package:todolist/widgets/launcher.dart';
+import 'package:todolist/screens/login.dart';
+import 'package:todolist/screens/landing.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(
-        SystemUiOverlayStyle(statusBarColor: Colors.transparent));
     return MaterialApp(
+      title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
-      title: 'ToDo App',
-      home: Home(),
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: LauncherPage(),
+      // routes: <String, WidgetBuilder>{
+      //   '/login': (BuildContext context) => new LoginPage(),
+      //   '/landing': (BuildContext context) => new LandingPage(),
+      // },
     );
   }
 }

@@ -1,177 +1,308 @@
-import 'package:todolist/widgets/form.dart';
+// import 'dart:js';
+
+import 'package:todolist/model/list_user_model.dart';
+import 'package:todolist/screens/register.dart';
+import 'package:path/path.dart' as Path;
+import 'package:todolist/screens/home.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:responsive_framework/responsive_framework.dart';
+import 'package:todolist/services/list_user_service.dart';
 
-import '../model/modelUser.dart';
-import '../services/service.dart';
+final myUsernameController = TextEditingController();
+final myPasswordController = TextEditingController();
 
-class Login extends StatefulWidget {
-  const Login({Key? key}) : super(key: key);
+final _services = UsersServices();
 
+final _formKey = GlobalKey<FormState>();
+
+class LoginScreen extends StatefulWidget {
   @override
-  State<Login> createState() => _LoginState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginState extends State<Login> {
-  final usernameController = TextEditingController();
-  final passwordController = TextEditingController();
-
-  // inisialisasi buat service dio
-  final _service = ListUsersService();
-
-  late SharedPreferences loginData;
-  late bool newUser;
-
+class _LoginScreenState extends State<LoginScreen> {
+  // final myUsernameController = TextEditingController();
   @override
-  void initState() {
-    super.initState();
-    checkLogin();
+  // _LoginScreen createState() => _LoginScreen();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: _LoginScreen(),
+    );
   }
+}
 
-  void login(username, password) async {
-    // cek ketika username dan password tidak kosong
-    if (username != '' && password != '') {
-      print('Successfull');
-
-      loginData.setBool('login', false);
-
-      // sekarang ini mengembalikan nilai boolean (true/false)
-      await _service.postLogin(username, password).then((result) {
-        // gunakan resultnya sebagai hasil boolean dari service login
-        if (result != null && result == true) {
-          print('berhasil login');
-
-          // ketika berhasil set refrence dan bawa ke halaman utama
-          loginData.setString('username', username);
-          Navigator.pushNamed(context, '/utama');
-        } else {
-          print('tidak berhasil login');
-        }
-      }).onError((error, stackTrace) {
-        // ketika error dio
-        print('Terjadi kesalahan pada dio');
-        print('error : $error');
-        print('stackTree : $stackTrace');
-      });
-    }
-  }
-
-  void checkLogin() async {
-    loginData = await SharedPreferences.getInstance();
-    newUser = (loginData.getBool('login') ?? true);
-    print('newUser');
-
-    // ini buat apa? kenapa ketika false dia di bawa ke utama?
-    // apa karena kalau newUser nya false artinya user dah pernah login?
-    if (newUser == false) {
-      Navigator.pushNamed(context, '/utama');
-    }
-  }
-
+class _LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.blue[700],
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.fromLTRB(15.0, 35.0, 15.0, 15.0),
-                child: const Center(
-                  child: Text(
-                    "Login",
-                    style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white),
-                  ),
-                ),
-              ),
-              Container(
-                child: Center(
-                  child: Image.asset(
-                    'Asset/img/animate.jpg',
-                    width: ResponsiveValue(context,
-                        defaultValue: 200.0,
-                        valueWhen: const [
-                          Condition.largerThan(name: TABLET, value: 350.0),
-                          Condition.smallerThan(name: TABLET, value: 200.0)
-                        ]).value,
-                    height: ResponsiveValue(context,
-                        defaultValue: 200.0,
-                        valueWhen: const [
-                          Condition.largerThan(name: TABLET, value: 350.0),
-                          Condition.smallerThan(name: TABLET, value: 200.0)
-                        ]).value,
-                  ),
-                ),
-              ),
-              Container(
-                  margin: EdgeInsets.all(10),
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 253, 253, 253),
-                      border: Border.all(color: Colors.black),
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black,
-                          offset: const Offset(
-                            0.0,
-                            0.0,
-                          ),
-                          blurRadius: 1.0,
-                          spreadRadius: 1.0,
-                        ), //BoxShadow
-                        BoxShadow(
-                          color: Colors.white,
-                          offset: const Offset(0.0, 0.0),
-                          blurRadius: 0.0,
-                          spreadRadius: 0.0,
-                        )
-                      ]),
-                  child: Column(children: [
-                    Field(
-                        title: 'Username',
-                        hint: 'masukan username anda',
-                        controller: usernameController),
-                    Field(
-                        title: 'password',
-                        hint: 'masukan password anda',
-                        controller: passwordController),
-                    SizedBox(
-                      height: 25.0,
-                    ),
-                    Center(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          primary: Color.fromARGB(255, 224, 173, 5),
-                          fixedSize: Size(200, 35),
-                        ),
-                        onPressed: () {
-                          // Logic buat login
-                          login(
-                              usernameController.text, passwordController.text);
-                        },
-                        child: Text('Login'),
-                      ),
-                    ),
-                    SizedBox(height: 15.0),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+    final mediaQueryHeight = MediaQuery.of(context).size.height;
+    final mediaQueryWidth = MediaQuery.of(context).size.width;
+
+    //Mencari tahu orientasi potret atau landcape
+    final bool isLansCape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+    return MaterialApp(
+      home: Scaffold(
+        backgroundColor: Colors.black,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Center(
+              //Jika Landscape
+              child: (isLansCape)
+                  ? Column(
                       children: [
-                        TextButton(onPressed: () {}, child: Text('Register')),
-                        TextButton(
-                            onPressed: () {}, child: Text('lupa password?')),
+                        // SizedBox(
+                        //   width: 30,
+                        // ),
+                        Container(
+                          // padding: EdgeInsets.fromLTRB(0, 40, 0, 20),
+                          width: mediaQueryWidth * 0.3,
+                          height: mediaQueryHeight * 0.3,
+                          child: Image.asset("assets/images/logo.png"),
+                        ),
+                        // SizedBox(
+                        //   height: 10,
+                        // ),
+                        Container(
+                          margin: EdgeInsets.all(4),
+                          padding: EdgeInsets.all(30.0),
+                          // width: mediaQueryWidth * 0.8,
+                          // height: mediaQueryHeight * 0.6,
+                          decoration: BoxDecoration(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(8.0)),
+                            color: Color.fromARGB(255, 247, 247, 247),
+                            border: Border.all(color: Colors.black, width: 2.0),
+                          ),
+                          child: Column(
+                            children: [
+                              _TextField(),
+                              MaterialButton(
+                                minWidth: 85.0,
+                                height: 50.0,
+                                color: Color.fromARGB(255, 10, 1, 134),
+                                textColor: Colors.white,
+                                onPressed: () async {
+                                  Future<UsersServices?> result =
+                                      await _services.loginUser(
+                                    username: myUsernameController.text,
+                                    password: myPasswordController.text,
+                                  ) as Future<UsersServices?>;
+
+                                  result.then((value) {
+                                    if (value != null) {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => Home()));
+                                    } else {
+                                      print("Username atau Password Salah");
+                                    }
+                                  });
+                                },
+                                child: SizedBox(
+                                  width: 50,
+                                  child: Text(
+                                    "Login",
+                                    style: TextStyle(color: Colors.white),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                              // _LoginButton(context),
+                              Padding(padding: EdgeInsets.only(top: 20)),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    register()));
+                                      },
+                                      child: Text(
+                                        "Daftar",
+                                      )),
+                                  TextButton(
+                                      onPressed: () {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Comingsoon'),
+                                          ),
+                                        );
+                                      },
+                                      child: Text("Lupa Pasword"))
+                                ],
+                              )
+                            ],
+                          ),
+                        )
                       ],
                     )
-                  ])),
-            ],
+                  // ----------------------------------------------------------Jika Potrait
+                  : Column(
+                      children: [
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Container(
+                          // padding: EdgeInsets.fromLTRB(0, 40, 0, 20),
+                          width: mediaQueryWidth * 0.4,
+                          height: mediaQueryHeight * 0.4,
+                          child: Image.asset("assets/images/logo.png"),
+                        ),
+                        // SizedBox(
+                        //   height: 10,
+                        // ),
+                        Container(
+                          // margin: EdgeInsets.all(4),
+                          padding: EdgeInsets.all(20.0),
+                          width: mediaQueryWidth * 0.8,
+                          height: 350.0,
+                          decoration: BoxDecoration(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(8.0)),
+                            color: Color.fromARGB(255, 247, 247, 247),
+                            border: Border.all(color: Colors.black, width: 2.0),
+                          ),
+                          child: Column(
+                            children: [
+                              _TextField(),
+                              MaterialButton(
+                                minWidth: 85.0,
+                                height: 50.0,
+                                color: Color.fromARGB(255, 10, 1, 134),
+                                textColor: Colors.white,
+                                onPressed: () async {
+                                  await _services
+                                      .loginUser(
+                                    username: myUsernameController.text,
+                                    password: myPasswordController.text,
+                                  )
+                                      .then((value) {
+                                    print(value);
+                                    if (value != null) {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => Home()));
+                                    } else {
+                                      print("Username atau Password Salah");
+                                    }
+                                  });
+                                },
+                                child: SizedBox(
+                                  width: 50,
+                                  child: Text(
+                                    "Login",
+                                    style: TextStyle(color: Colors.white),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                              // _LoginButton(context),
+                              Padding(padding: EdgeInsets.only(top: 20)),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    register()));
+                                      },
+                                      child: Text(
+                                        "Daftar",
+                                      )),
+                                  TextButton(
+                                      onPressed: (null),
+                                      child: Text("Lupa Pasword"))
+                                ],
+                              )
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+            ),
           ),
         ),
+        bottomNavigationBar: BottomAppBar(
+            child: Container(
+                color: Color.fromARGB(255, 92, 92, 92),
+                height: 20.0,
+                child: Column(
+                  children: [
+                    Center(
+                      child: Text("Copyright @2022 by Kerta"),
+                    )
+                  ],
+                ))),
       ),
     );
   }
+}
+
+Widget _TextField() {
+  // final myUsernameController = TextEditingController();
+  // final myPasswordController = TextEditingController();
+  // String nUsername, nPassword;
+  // final _formKey = GlobalKey<FormState>();
+
+  return Form(
+    key: _formKey,
+    child: Column(
+      children: <Widget>[
+        Padding(padding: EdgeInsets.only(top: 5)),
+        // Container(child: Text("Username")),
+        TextFormField(
+          validator: (value) {
+            if (value!.isEmpty) {
+              return 'please Input Username';
+            }
+            return null;
+          },
+          controller: myUsernameController,
+          decoration: InputDecoration(
+              label: Text("Username"),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(4.0))),
+              hintStyle: TextStyle(color: Colors.black)),
+          style: TextStyle(color: Colors.black),
+          autofocus: false,
+        ),
+        Padding(padding: EdgeInsets.only(top: 12.0)),
+
+        TextFormField(
+          validator: (value) {
+            if (value!.isEmpty) {
+              return 'please Input Password';
+            }
+            return null;
+          },
+          maxLength: 16,
+          // maxLengthEnforced: true,
+          controller: myPasswordController,
+          obscureText: true,
+          decoration: InputDecoration(
+              label: Text("Password"),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(4.0))),
+              hintStyle: TextStyle(color: Colors.black)),
+          style: TextStyle(color: Colors.black),
+          autofocus: false,
+        ),
+
+        SizedBox(
+          height: 25,
+        )
+      ],
+    ),
+  );
 }
