@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todolist/service/database.dart';
 
 class TodoListPage extends StatefulWidget {
   const TodoListPage();
@@ -120,34 +121,44 @@ class _TodoListPageState extends State<TodoListPage> {
                   style: TextStyle(
                     fontSize: 15,
                     height: 2,
-                    color: Colors.orange[200],
+                    color: Color.fromARGB(255, 255, 153, 0),
                   ),
                   autofocus: true,
                   decoration: InputDecoration(
-                    hintText: "Tambhakan List",
+                    hintText: "Tambahkan List",
                     hintStyle: TextStyle(color: Colors.orange[200]),
                   ),
                 ),
                 SizedBox(
                   height: 20,
                 ),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  height: 50,
-                  child: FlatButton(
+                TextButton(
+                  style: TextButton.styleFrom(
+                    textStyle: TextStyle(
+                      color: Colors.orange,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Text("Tambah"),
-                    color: Theme.of(context).primaryColor,
-                    textColor: Colors.orange,
-                    onPressed: () {
-                      if (todoTitleController.text.isNotEmpty) {
-                        print(todoTitleController.text);
-                        Navigator.pop(context);
-                      }
-                    },
                   ),
+                  child: Text(
+                    'Tambah',
+                    style: TextStyle(
+                      color: Colors.orange,
+                      fontSize: 15.0,
+                    ),
+                  ),
+                  onPressed: () async {
+                    if (todoTitleController.text.isNotEmpty) {
+                      await Database()
+                          .createNewTodo(todoTitleController.text.trim());
+                      Navigator.pop(context);
+                    }
+                  },
+                ),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  height: 50,
                 )
               ],
             ),
@@ -157,11 +168,4 @@ class _TodoListPageState extends State<TodoListPage> {
       ),
     );
   }
-
-  FlatButton(
-      {required RoundedRectangleBorder shape,
-      required Text child,
-      required Color color,
-      required MaterialColor textColor,
-      required Null Function() onPressed}) {}
 }
