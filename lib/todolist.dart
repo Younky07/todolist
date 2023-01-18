@@ -36,33 +36,45 @@ class _TodoListPageState extends State<TodoListPage> {
                 shrinkWrap: true,
                 itemCount: 16,
                 itemBuilder: (context, index) {
-                  return ListTile(
-                    onTap: () {
-                      setState(() {
-                        isComplet = !isComplet;
-                      });
-                    },
-                    leading: Container(
-                      padding: EdgeInsets.all(2),
-                      height: 25,
-                      width: 25,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor,
-                        // shape: BoxShape.circle,
-                      ),
-                      child: isComplet
-                          ? Icon(
-                              Icons.check,
-                              color: Colors.black,
-                            )
-                          : Container(),
+                  return Dismissible(
+                    key: Key(index.toString()),
+                    background: Container(
+                      padding: EdgeInsets.only(left: 20),
+                      alignment: Alignment.centerLeft,
+                      child: Icon(Icons.delete),
+                      color: Colors.red,
                     ),
-                    title: Text(
-                      "TUGAS UAS MOBILE",
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.orange[200],
-                        fontWeight: FontWeight.w600,
+                    onDismissed: (direction) {
+                      print("removed");
+                    },
+                    child: ListTile(
+                      onTap: () {
+                        setState(() {
+                          isComplet = !isComplet;
+                        });
+                      },
+                      leading: Container(
+                        padding: EdgeInsets.all(2),
+                        height: 25,
+                        width: 25,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColor,
+                          // shape: BoxShape.circle,
+                        ),
+                        child: isComplet
+                            ? Icon(
+                                Icons.check,
+                                color: Colors.black,
+                              )
+                            : Container(),
+                      ),
+                      title: Text(
+                        "TUGAS UAS MOBILE",
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.orange[200],
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   );
@@ -104,6 +116,7 @@ class _TodoListPageState extends State<TodoListPage> {
               children: [
                 Divider(),
                 TextFormField(
+                  controller: todoTitleController,
                   style: TextStyle(
                     fontSize: 15,
                     height: 2,
@@ -128,7 +141,12 @@ class _TodoListPageState extends State<TodoListPage> {
                     child: Text("Tambah"),
                     color: Theme.of(context).primaryColor,
                     textColor: Colors.orange,
-                    onPressed: () {},
+                    onPressed: () {
+                      if (todoTitleController.text.isNotEmpty) {
+                        print(todoTitleController.text);
+                        Navigator.pop(context);
+                      }
+                    },
                   ),
                 )
               ],
