@@ -94,7 +94,7 @@ class _HomeState extends State<Home> {
                   child: TextField(
                     controller: _todoController,
                     decoration: InputDecoration(
-                        hintText: 'Add a new todo item',
+                        hintText: 'Add a new todo list',
                         border: InputBorder.none),
                   ),
                 ),
