@@ -240,7 +240,7 @@ class _LoginScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     Center(
-                      child: Text("Copyright @2022 by Kerta"),
+                      child: Text("Copyright @2022 by Google"),
                     )
                   ],
                 ))),
